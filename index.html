@@ -1,0 +1,1030 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Blue Heron — Kitchen Ops</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <span class="brand-heron">&#x7e;&nbsp;BH</span>
+      <span class="brand-sub">Ops Dashboard</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="#" class="nav-item active" data-page="dashboard">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="2" width="7" height="7" rx="1"/><rect x="11" y="2" width="7" height="7" rx="1"/><rect x="2" y="11" width="7" height="7" rx="1"/><rect x="11" y="11" width="7" height="7" rx="1"/></svg>
+        Overview
+      </a>
+      <a href="#" class="nav-item" data-page="production">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10 2v4M10 14v4M2 10h4M14 10h4"/><circle cx="10" cy="10" r="3"/></svg>
+        Production
+      </a>
+      <a href="#" class="nav-item" data-page="stock">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6l7-3 7 3v8l-7 3-7-3V6z"/><path d="M10 3v14M3 6l7 3 7-3"/></svg>
+        Stock
+      </a>
+      <a href="#" class="nav-item" data-page="purchases">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 2a1 1 0 001 1h12a1 1 0 000-2H8"/></svg>
+        Purchases
+      </a>
+      <a href="#" class="nav-item" data-page="recipes">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h12M4 8h8M4 12h10M4 16h6"/><circle cx="16" cy="14" r="3"/><path d="M16 13v2M15 14h2"/></svg>
+        Recipes
+      </a>
+      <div class="nav-divider"></div>
+      <a href="#" class="nav-item" data-page="items">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 4h10a1 1 0 011 1v1H4V5a1 1 0 011-1zM4 8h12v8a1 1 0 01-1 1H5a1 1 0 01-1-1V8z"/><path d="M8 12h4"/></svg>
+        Items
+      </a>
+      <a href="#" class="nav-item" data-page="suppliers">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="3"/><path d="M2 18c0-3.3 2.7-6 6-6"/><path d="M13 13h5M13 16h5M13 19h3"/></svg>
+        Suppliers
+      </a>
+      <div class="nav-divider"></div>
+      <a href="#" class="nav-item" data-page="service">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10h14M3 6h14M3 14h8"/><circle cx="16" cy="14" r="3"/><path d="M16 12.5v3M14.5 14h3"/></svg>
+        Service
+      </a>
+      <a href="#" class="nav-item" data-page="adjustments">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10h12M10 4l-3 6h6l-3 6"/></svg>
+        Adjustments
+      </a>
+      <a href="#" class="nav-item" data-page="ledger">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="14" height="14" rx="1"/><path d="M3 7h14M7 7v10"/></svg>
+        Ledger
+      </a>
+      <div class="nav-divider"></div>
+      <a href="#" class="nav-item" data-page="costing">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="10" cy="10" r="7"/><path d="M10 6v8M7.5 8.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5S12.4 11 10 11s-2.5 1.1-2.5 2.5S8.6 16 10 16"/></svg>
+        Costing
+      </a>
+      <a href="#" class="nav-item" data-page="calculator">
+        <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="2" width="14" height="16" rx="2"/><path d="M7 6h6M7 10h2M11 10h2M7 14h2M11 14h2"/></svg>
+        Calculator
+      </a>
+    </nav>
+    <div class="sidebar-role">
+      <div class="role-dot"></div>
+      <span id="role-label">Admin</span>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 class="page-title" id="page-title">Overview</h1>
+        <span class="page-date" id="page-date"></span>
+      </div>
+      <div class="topbar-right">
+        <button class="btn-refresh" id="btn-refresh" title="Refresh data">
+          <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4a8 8 0 0112 0M4 16a8 8 0 0012 0M16 4v4h-4M4 12v4h4"/></svg>
+        </button>
+        <div class="config-notice" id="config-notice">
+          ⚠ Connect Supabase in <code>js/config.js</code>
+        </div>
+      </div>
+    </header>
+
+    <!-- PAGES -->
+    <div class="pages">
+
+      <!-- ── PAGE: OVERVIEW ── -->
+      <section class="page active" id="page-dashboard">
+
+        <!-- Stat cards row -->
+        <div class="stat-row">
+          <div class="stat-card" id="stat-ok">
+            <div class="stat-value" id="stat-ok-val">—</div>
+            <div class="stat-label">Ingredients OK</div>
+          </div>
+          <div class="stat-card warn" id="stat-low">
+            <div class="stat-value" id="stat-low-val">—</div>
+            <div class="stat-label">Low Stock</div>
+          </div>
+          <div class="stat-card danger" id="stat-critical">
+            <div class="stat-value" id="stat-critical-val">—</div>
+            <div class="stat-label">Critical</div>
+          </div>
+          <div class="stat-card accent" id="stat-batches">
+            <div class="stat-value" id="stat-batches-val">—</div>
+            <div class="stat-label">Batches This Week</div>
+          </div>
+        </div>
+
+        <!-- Two-column layout -->
+        <div class="two-col">
+
+          <!-- Tonight's capacity -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Tonight's Capacity</span>
+              <span class="card-sub">Portions ready to serve</span>
+            </div>
+            <div class="capacity-list" id="capacity-list">
+              <div class="loading-row">Loading…</div>
+            </div>
+          </div>
+
+          <!-- Prep status -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Prep Status</span>
+              <span class="card-sub">Batch components on hand</span>
+            </div>
+            <div class="prep-list" id="prep-list">
+              <div class="loading-row">Loading…</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Batch efficiency chart -->
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Batch Efficiency</span>
+            <span class="card-sub">Actual vs standard yield — last 8 batches</span>
+          </div>
+          <div class="chart-wrap" id="efficiency-chart">
+            <div class="loading-row">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Low stock alerts -->
+        <div class="card full-width" id="alerts-card">
+          <div class="card-header">
+            <span class="card-title">Stock Alerts</span>
+            <span class="card-sub">Items at or below par level</span>
+          </div>
+          <div class="alert-list" id="alert-list">
+            <div class="loading-row">Loading…</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── PAGE: PRODUCTION ── -->
+      <section class="page" id="page-production">
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Log a Batch</span>
+            <span class="card-sub">Record today's prep production</span>
+          </div>
+          <form class="prod-form" id="prod-form">
+            <div class="form-row">
+              <label>Prep Item
+                <select id="prod-item" required>
+                  <option value="">— select item —</option>
+                </select>
+              </label>
+              <label>Date
+                <input type="date" id="prod-date" required />
+              </label>
+              <label>Intended Batches
+                <input type="number" id="prod-intended" min="0.5" step="0.5" value="1" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <label>Actual Yield (gr)
+                <input type="number" id="prod-yield" min="1" required placeholder="e.g. 1480" />
+              </label>
+              <label class="readonly-label">Std Yield (gr)
+                <input type="text" id="prod-std" readonly placeholder="auto-filled" />
+              </label>
+              <label class="readonly-label">Efficiency
+                <input type="text" id="prod-eff" readonly placeholder="auto-calculated" />
+              </label>
+            </div>
+            <div class="form-row">
+              <label class="full-label">Notes (optional)
+                <input type="text" id="prod-notes" placeholder="e.g. low yield due to cream shortage" />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Save batch</button>
+              <span class="form-feedback" id="prod-feedback"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Recent Batches</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="prod-table">
+              <thead>
+                <tr>
+                  <th>Batch</th><th>Date</th><th>Item</th>
+                  <th>Std Yield</th><th>Actual Yield</th>
+                  <th>Efficiency</th><th>Portions</th><th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="prod-tbody"><tr><td colspan="8" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PAGE: STOCK ── -->
+      <section class="page" id="page-stock">
+
+        <!-- Opening stock entry (collapsible) -->
+        <div class="card full-width" id="opening-stock-card">
+          <div class="card-header toggle-header" id="opening-stock-toggle">
+            <span class="card-title">Opening Stock Entry</span>
+            <span class="card-sub">Set stock balances for a new period</span>
+            <span class="toggle-chevron">›</span>
+          </div>
+          <div id="opening-stock-body" style="display:none">
+            <div class="prod-form">
+              <div class="form-row">
+                <label>Reference / Period
+                  <input type="text" id="os-ref" placeholder="e.g. OPEN-APR" required />
+                </label>
+                <label>Date
+                  <input type="date" id="os-date" required />
+                </label>
+              </div>
+              <div class="os-lines" id="os-lines">
+                <div class="os-line-header">
+                  <span>Item</span><span>Qty (usage unit)</span><span>Unit</span>
+                </div>
+                <div id="os-lines-body"></div>
+              </div>
+              <div class="recipe-add-row" style="padding:12px 0 0">
+                <select id="os-item-sel" style="flex:2">
+                  <option value="">— select item —</option>
+                </select>
+                <input type="number" id="os-qty" placeholder="Qty" min="0" step="0.1" style="flex:1" />
+                <span id="os-unit-label" style="font-size:12px;color:var(--slate-400);min-width:30px"></span>
+                <button class="btn-secondary" id="btn-os-add">+ Add line</button>
+              </div>
+              <div class="form-actions" style="padding-top:16px">
+                <button class="btn-primary" id="btn-os-save">Save opening stock</button>
+                <span class="form-feedback" id="os-feedback"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Current Stock</span>
+            <span class="card-sub">All items — computed from ledger</span>
+            <div class="filter-row">
+              <select id="stock-filter-cat">
+                <option value="">All categories</option>
+                <option value="Ingredient">Ingredients</option>
+                <option value="Prep">Prep</option>
+              </select>
+              <select id="stock-filter-status">
+                <option value="">All status</option>
+                <option value="critical">Critical</option>
+                <option value="low">Low</option>
+                <option value="ok">OK</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="stock-table">
+              <thead>
+                <tr>
+                  <th>Item</th><th>Category</th>
+                  <th>Stock</th><th>Unit</th>
+                  <th>Par Level</th><th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="stock-tbody"><tr><td colspan="6" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PAGE: PURCHASES ── -->
+      <section class="page" id="page-purchases">
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Log a Purchase</span>
+            <span class="card-sub">Received stock from supplier</span>
+          </div>
+          <form class="prod-form" id="po-form">
+            <div class="form-row">
+              <label>Item
+                <select id="po-item" required>
+                  <option value="">— select ingredient —</option>
+                </select>
+              </label>
+              <label>Supplier
+                <select id="po-supplier">
+                  <option value="">— select supplier —</option>
+                </select>
+              </label>
+              <label>Date
+                <input type="date" id="po-date" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <label>Qty (purchase unit)
+                <input type="number" id="po-qty" min="0.1" step="0.1" required placeholder="e.g. 5" />
+              </label>
+              <label class="readonly-label">Qty (usage unit)
+                <input type="text" id="po-qty-usage" readonly placeholder="auto-converted" />
+              </label>
+              <label>Unit Price (Rp / purchase unit)
+                <input type="number" id="po-price" min="0" required placeholder="e.g. 90000" />
+              </label>
+            </div>
+            <div class="form-row">
+              <label class="readonly-label">Total Cost
+                <input type="text" id="po-total" readonly placeholder="auto-calculated" />
+              </label>
+              <label>Ref / PO number
+                <input type="text" id="po-ref" placeholder="e.g. PO-APR-001" />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Record purchase</button>
+              <span class="form-feedback" id="po-feedback"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Purchase History</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="po-table">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Item</th><th>Supplier</th>
+                  <th>Qty</th><th>Unit</th>
+                  <th>Unit Price</th><th>Total</th><th>Ref</th>
+                </tr>
+              </thead>
+              <tbody id="po-tbody"><tr><td colspan="8" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── PAGE: RECIPES ── -->
+      <section class="page" id="page-recipes">
+
+        <!-- Step 1: Create or select a prep/dish item -->
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Step 1 — Item</span>
+            <span class="card-sub">Create a new prep or dish item, or select an existing one to edit</span>
+          </div>
+          <div class="recipe-item-panel">
+            <div class="recipe-tabs">
+              <button class="rtab active" id="rtab-new">New item</button>
+              <button class="rtab" id="rtab-existing">Edit existing</button>
+            </div>
+
+            <!-- New item form -->
+            <div id="rpanel-new" class="rpanel">
+              <div class="form-row">
+                <label>Item Name
+                  <input type="text" id="ri-name" placeholder="e.g. Fish &amp; Chips" required />
+                </label>
+                <label>Category
+                  <select id="ri-category">
+                    <option value="Prep">Prep (batch component)</option>
+                    <option value="Dish">Dish (final plate)</option>
+                  </select>
+                </label>
+                <label>Usage Unit
+                  <select id="ri-unit">
+                    <option value="gr">gr (grams)</option>
+                    <option value="ml">ml (millilitres)</option>
+                    <option value="pcs">pcs (pieces)</option>
+                    <option value="portion">portion</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-row">
+                <label>Par Level (min stock alert)
+                  <input type="number" id="ri-par" min="0" value="5" placeholder="e.g. 10" />
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="btn-primary" id="btn-create-item">Create item &amp; continue →</button>
+                <span class="form-feedback" id="ri-feedback"></span>
+              </div>
+            </div>
+
+            <!-- Existing item selector -->
+            <div id="rpanel-existing" class="rpanel" style="display:none">
+              <div class="form-row">
+                <label>Select item to edit
+                  <select id="ri-existing-sel">
+                    <option value="">— select —</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-actions">
+                <button class="btn-primary" id="btn-load-existing">Load recipe →</button>
+                <span class="form-feedback" id="ri-existing-feedback"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Recipe lines -->
+        <div class="card full-width" id="recipe-lines-card" style="display:none">
+          <div class="card-header">
+            <span class="card-title">Step 2 — Recipe</span>
+            <span class="card-sub" id="recipe-lines-sub">Ingredients for <em id="recipe-item-name">—</em></span>
+          </div>
+          <div class="recipe-lines-wrap">
+            <table class="data-table" id="recipe-lines-table">
+              <thead>
+                <tr>
+                  <th>Ingredient / Prep</th>
+                  <th>Qty</th>
+                  <th>Unit</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="recipe-lines-tbody"></tbody>
+            </table>
+            <!-- Add line row -->
+            <div class="recipe-add-row">
+              <select id="rl-input-item" style="flex:2">
+                <option value="">— select ingredient or prep —</option>
+              </select>
+              <input type="number" id="rl-qty" placeholder="Qty" min="0.01" step="0.01" style="flex:1" />
+              <select id="rl-unit" style="flex:1">
+                <option value="gr">gr</option>
+                <option value="ml">ml</option>
+                <option value="pcs">pcs</option>
+              </select>
+              <button class="btn-secondary" id="btn-add-line">+ Add line</button>
+            </div>
+            <div class="form-actions" style="padding:0 20px 20px">
+              <button class="btn-primary" id="btn-save-recipe">Save recipe</button>
+              <span class="form-feedback" id="rl-feedback"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Batch standard -->
+        <div class="card full-width" id="recipe-std-card" style="display:none">
+          <div class="card-header">
+            <span class="card-title">Step 3 — Batch Standard</span>
+            <span class="card-sub">Set expected yield and portion size for <em id="std-item-name">—</em></span>
+          </div>
+          <form class="prod-form" id="std-form">
+            <div class="form-row">
+              <label>Standard Yield (gr total per batch)
+                <input type="number" id="std-yield" min="1" required placeholder="e.g. 2000" />
+              </label>
+              <label>Portion Size (gr per serving)
+                <input type="number" id="std-portion" min="1" required placeholder="e.g. 200" />
+              </label>
+              <label class="readonly-label">Portions per Batch
+                <input type="text" id="std-portions-calc" readonly placeholder="auto-calculated" />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Save batch standard</button>
+              <span class="form-feedback" id="std-feedback"></span>
+            </div>
+          </form>
+        </div>
+
+        <!-- Recipe library -->
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Recipe Library</span>
+            <span class="card-sub">All prep &amp; dish items with their ingredients</span>
+          </div>
+          <div id="recipe-library">
+            <div class="loading-row">Loading…</div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── PAGE: ITEMS ── -->
+      <section class="page" id="page-items">
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Add Item</span>
+            <span class="card-sub">Ingredients, prep components, or final dishes</span>
+          </div>
+          <form class="prod-form" id="item-form">
+            <div class="form-row">
+              <label>Item ID
+                <input type="text" id="item-id" placeholder="e.g. ING035 or PREP008" required />
+              </label>
+              <label>Item Name
+                <input type="text" id="item-name" placeholder="e.g. Fish Fillet" required />
+              </label>
+              <label>Category
+                <select id="item-category" required>
+                  <option value="Ingredient">Ingredient</option>
+                  <option value="Prep">Prep</option>
+                  <option value="Dish">Dish</option>
+                  <option value="Packaging">Packaging</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-row">
+              <label>Purchase Unit
+                <select id="item-purchase-unit">
+                  <option value="kg">kg</option>
+                  <option value="ltr">ltr</option>
+                  <option value="pcs">pcs</option>
+                  <option value="pack">pack</option>
+                  <option value="">— none (prep/dish) —</option>
+                </select>
+              </label>
+              <label>Usage Unit
+                <select id="item-usage-unit" required>
+                  <option value="gr">gr</option>
+                  <option value="ml">ml</option>
+                  <option value="pcs">pcs</option>
+                  <option value="portion">portion</option>
+                </select>
+              </label>
+              <label>Conversion
+                <input type="number" id="item-conversion" min="0.001" step="0.001" value="1000" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <label>Par Level (min stock alert)
+                <input type="number" id="item-par" min="0" value="0" />
+              </label>
+              <label class="readonly-label">Conversion note
+                <input type="text" id="item-conv-note" readonly placeholder="auto" />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="item-form-btn">Add item</button>
+              <button type="button" class="btn-secondary" id="item-form-cancel" style="display:none">Cancel edit</button>
+              <span class="form-feedback" id="item-feedback"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Item Master</span>
+            <div class="filter-row">
+              <select id="items-filter-cat">
+                <option value="">All categories</option>
+                <option value="Ingredient">Ingredient</option>
+                <option value="Prep">Prep</option>
+                <option value="Dish">Dish</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="items-table">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>Category</th>
+                  <th>Purchase Unit</th><th>Usage Unit</th>
+                  <th>Conversion</th><th>Par Level</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="items-tbody"><tr><td colspan="8" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── PAGE: SUPPLIERS ── -->
+      <section class="page" id="page-suppliers">
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Add Supplier</span>
+          </div>
+          <form class="prod-form" id="supplier-form">
+            <div class="form-row">
+              <label>Supplier ID
+                <input type="text" id="sup-id" placeholder="e.g. SUP005" required />
+              </label>
+              <label>Supplier Name
+                <input type="text" id="sup-name" placeholder="e.g. CV Segar Makmur" required />
+              </label>
+              <label>Category
+                <select id="sup-category">
+                  <option value="Protein">Protein</option>
+                  <option value="Produce">Produce</option>
+                  <option value="Dairy">Dairy</option>
+                  <option value="Dry Goods">Dry Goods</option>
+                  <option value="Beverage">Beverage</option>
+                  <option value="Other">Other</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-row">
+              <label>Contact
+                <input type="text" id="sup-contact" placeholder="e.g. 0812-3456-7890" />
+              </label>
+              <label>Payment Terms
+                <select id="sup-terms">
+                  <option value="COD">COD</option>
+                  <option value="NET 7">NET 7</option>
+                  <option value="NET 14">NET 14</option>
+                  <option value="NET 30">NET 30</option>
+                </select>
+              </label>
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary" id="sup-form-btn">Add supplier</button>
+              <button type="button" class="btn-secondary" id="sup-form-cancel" style="display:none">Cancel edit</button>
+              <span class="form-feedback" id="sup-feedback"></span>
+            </div>
+          </form>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Supplier List</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="suppliers-table">
+              <thead>
+                <tr>
+                  <th>ID</th><th>Name</th><th>Category</th>
+                  <th>Contact</th><th>Payment Terms</th><th>Status</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="suppliers-tbody"><tr><td colspan="7" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── PAGE: SERVICE ── -->
+      <section class="page" id="page-service">
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">End-of-Day Sales Entry</span>
+            <span class="card-sub">Record dishes sold today — stock will be deducted automatically</span>
+          </div>
+          <div class="prod-form" id="service-form-wrap">
+            <div class="form-row">
+              <label>Service Date
+                <input type="date" id="svc-date" required />
+              </label>
+            </div>
+
+            <!-- Dish lines builder -->
+            <div class="os-lines" id="svc-lines-wrap">
+              <div class="os-line-header" style="grid-template-columns:1fr 80px 100px 120px 32px">
+                <span>Dish</span><span>Qty Sold</span><span>Unit Price (Rp)</span><span>Deductions preview</span><span></span>
+              </div>
+              <div id="svc-lines-body"></div>
+            </div>
+
+            <div class="recipe-add-row">
+              <select id="svc-dish-sel" style="flex:2">
+                <option value="">— select dish —</option>
+              </select>
+              <input type="number" id="svc-qty" placeholder="Qty" min="1" step="1" style="flex:1;max-width:100px" />
+              <input type="number" id="svc-price" placeholder="Unit price (opt)" min="0" style="flex:1;max-width:140px" />
+              <button class="btn-secondary" id="btn-svc-add">+ Add dish</button>
+            </div>
+
+            <!-- Deduction preview -->
+            <div id="svc-preview" style="display:none">
+              <div class="card-header" style="padding:12px 0 8px;border:none">
+                <span class="card-title" style="font-size:13px">Stock deduction preview</span>
+                <span class="card-sub">What will be deducted when you save</span>
+              </div>
+              <table class="data-table" id="svc-preview-table">
+                <thead><tr><th>Item</th><th>Type</th><th>Deduct</th><th>Unit</th></tr></thead>
+                <tbody id="svc-preview-tbody"></tbody>
+              </table>
+            </div>
+
+            <div class="form-actions">
+              <button class="btn-primary" id="btn-svc-save">Save service record</button>
+              <span class="form-feedback" id="svc-feedback"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Sales History</span>
+            <span class="card-sub">Last 30 days</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="sales-table">
+              <thead>
+                <tr><th>Date</th><th>Dish</th><th>Qty Sold</th><th>Unit Price</th><th>Revenue</th><th>Source</th></tr>
+              </thead>
+              <tbody id="sales-tbody"><tr><td colspan="6" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── PAGE: ADJUSTMENTS ── -->
+      <section class="page" id="page-adjustments">
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Stock Adjustment</span>
+            <span class="card-sub">Physical count correction — admin only</span>
+          </div>
+          <div class="prod-form" id="adj-form-wrap">
+            <div class="form-row">
+              <label>Item
+                <select id="adj-item" required>
+                  <option value="">— select item —</option>
+                </select>
+              </label>
+              <label>Date
+                <input type="date" id="adj-date" required />
+              </label>
+            </div>
+            <div class="form-row">
+              <label class="readonly-label">System Stock
+                <input type="text" id="adj-system-qty" readonly placeholder="auto-filled on select" />
+              </label>
+              <label>Physical Count
+                <input type="number" id="adj-physical" min="0" step="0.1" placeholder="what you actually counted" required />
+              </label>
+              <label class="readonly-label">Delta
+                <input type="text" id="adj-delta" readonly placeholder="auto-calculated" />
+              </label>
+            </div>
+            <div class="form-row">
+              <label class="full-label">Reason (required)
+                <input type="text" id="adj-reason" placeholder="e.g. Physical count — spillage discovered" required />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary" id="btn-adj-save">Save adjustment</button>
+              <span class="form-feedback" id="adj-feedback"></span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Adjustment History</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="adj-table">
+              <thead>
+                <tr><th>Date</th><th>Item</th><th>System Qty</th><th>Physical Qty</th><th>Delta</th><th>Reason</th><th>By</th></tr>
+              </thead>
+              <tbody id="adj-tbody"><tr><td colspan="7" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── PAGE: LEDGER ── -->
+      <section class="page" id="page-ledger">
+
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Movement History</span>
+            <span class="card-sub">Every inventory change — fully traceable</span>
+            <div class="filter-row">
+              <select id="ledger-filter-source">
+                <option value="">All sources</option>
+                <option value="OPENING">Opening</option>
+                <option value="PURCHASE">Purchase</option>
+                <option value="PROD_OUT">Prod Out</option>
+                <option value="PROD_USE">Prod Use</option>
+                <option value="SALE">Sale</option>
+                <option value="ADJUSTMENT">Adjustment</option>
+              </select>
+              <select id="ledger-filter-cat">
+                <option value="">All categories</option>
+                <option value="Ingredient">Ingredient</option>
+                <option value="Prep">Prep</option>
+                <option value="Dish">Dish</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="ledger-table">
+              <thead>
+                <tr>
+                  <th>Date</th><th>Item</th><th>Category</th>
+                  <th>In</th><th>Out</th><th>Net</th><th>Unit</th>
+                  <th>Source</th><th>Ref</th><th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-tbody"><tr><td colspan="10" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── PAGE: COSTING ── -->
+      <section class="page" id="page-costing">
+
+        <!-- Recipe cost summary -->
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Recipe Costs</span>
+            <span class="card-sub">Cost per portion — auto-updates when purchase prices change</span>
+            <div class="filter-row">
+              <select id="cost-filter-cat">
+                <option value="">All types</option>
+                <option value="Prep">Prep</option>
+                <option value="Dish">Dish</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="recipe-cost-table">
+              <thead>
+                <tr>
+                  <th>Recipe</th><th>Type</th><th>Portions/Batch</th>
+                  <th>Batch Cost</th><th>Cost/Portion</th><th>Status</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="recipe-cost-tbody"><tr><td colspan="7" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Cost breakdown panel (shown on row click) -->
+        <div class="card full-width" id="cost-breakdown-card" style="display:none">
+          <div class="card-header">
+            <span class="card-title" id="cost-breakdown-title">Cost Breakdown</span>
+            <span class="card-sub" id="cost-breakdown-sub"></span>
+            <button class="btn-secondary" style="margin-left:auto;padding:4px 12px;font-size:11px" onclick="document.getElementById('cost-breakdown-card').style.display='none'">Close</button>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="cost-breakdown-table">
+              <thead><tr><th>Ingredient</th><th>Type</th><th>Qty</th><th>Unit</th><th>Cost/Unit</th><th>Line Total</th><th>Source</th></tr></thead>
+              <tbody id="cost-breakdown-tbody"></tbody>
+            </table>
+          </div>
+          <div style="padding:12px 20px;border-top:1px solid var(--border);display:flex;gap:24px;align-items:center">
+            <span style="font-size:12px;color:var(--text-muted)">Batch total:</span>
+            <span class="mono" id="cost-breakdown-total" style="font-size:16px;font-weight:600;color:var(--text-primary)">—</span>
+            <span style="font-size:12px;color:var(--text-muted);margin-left:16px">Per portion:</span>
+            <span class="mono" id="cost-breakdown-per-portion" style="font-size:16px;font-weight:600;color:var(--gold-dark)">—</span>
+          </div>
+        </div>
+
+        <!-- Ingredient cost overrides -->
+        <div class="card full-width">
+          <div class="card-header">
+            <span class="card-title">Ingredient Costs</span>
+            <span class="card-sub">Last purchase price · Override to fix cost manually</span>
+            <div class="filter-row">
+              <select id="ing-cost-filter">
+                <option value="">All items</option>
+                <option value="uncosted">Uncosted only</option>
+                <option value="override">Override only</option>
+                <option value="purchase">Purchase only</option>
+              </select>
+            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="ing-cost-table">
+              <thead>
+                <tr>
+                  <th>Item</th><th>Unit</th><th>Last Purchase</th>
+                  <th>Override</th><th>Resolved Cost</th><th>Source</th><th></th>
+                </tr>
+              </thead>
+              <tbody id="ing-cost-tbody"><tr><td colspan="7" class="loading-row">Loading…</td></tr></tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Inline override editor (hidden until edit clicked) -->
+        <div class="card full-width" id="override-editor" style="display:none">
+          <div class="card-header">
+            <span class="card-title">Set Cost Override</span>
+            <span class="card-sub" id="override-item-label"></span>
+          </div>
+          <div class="prod-form">
+            <div class="form-row">
+              <label>Override Cost (Rp per <span id="override-unit-label">unit</span>)
+                <input type="number" id="override-cost-input" min="0" step="0.01" placeholder="e.g. 15" />
+              </label>
+              <label>Note (optional)
+                <input type="text" id="override-note-input" placeholder="e.g. Market estimate Apr 2025" />
+              </label>
+            </div>
+            <div class="form-actions">
+              <button class="btn-primary" id="btn-override-save">Save override</button>
+              <button class="btn-secondary" id="btn-override-clear">Clear override</button>
+              <button class="btn-secondary" onclick="document.getElementById('override-editor').style.display='none'">Cancel</button>
+              <span class="form-feedback" id="override-feedback"></span>
+            </div>
+          </div>
+        </div>
+
+      </section>
+
+      <!-- ── PAGE: CALCULATOR ── -->
+      <section class="page" id="page-calculator">
+
+        <div class="two-col" style="align-items:start">
+
+          <!-- Session list -->
+          <div class="card" style="margin-bottom:0">
+            <div class="card-header">
+              <span class="card-title">Saved Sessions</span>
+              <button class="btn-primary" id="btn-new-session" style="margin-left:auto;padding:6px 14px;font-size:12px">+ New</button>
+            </div>
+            <div id="calc-session-list"><div class="loading-row">Loading…</div></div>
+          </div>
+
+          <!-- Active session editor -->
+          <div class="card" id="calc-editor-card" style="display:none;margin-bottom:0">
+            <div class="card-header">
+              <span class="card-title" id="calc-session-title">—</span>
+              <button class="btn-del" id="btn-delete-session" title="Delete session" style="margin-left:auto">🗑</button>
+            </div>
+            <div style="padding:16px 20px">
+
+              <!-- Line builder -->
+              <div class="os-line-header" style="grid-template-columns:1fr 70px 80px 100px 32px;margin-bottom:4px">
+                <span>Ingredient</span><span>Qty</span><span>Unit</span><span>Cost/unit (Rp)</span><span></span>
+              </div>
+              <div id="calc-lines-body"></div>
+
+              <!-- Add line row -->
+              <div class="recipe-add-row" style="padding:10px 0;gap:8px;flex-wrap:wrap">
+                <select id="calc-item-sel" style="flex:2;min-width:150px">
+                  <option value="__custom__">+ Custom ingredient</option>
+                </select>
+                <input type="text" id="calc-custom-name" placeholder="Name" style="flex:1;min-width:100px;display:none;background:var(--surface);border:1px solid var(--border-mid);color:var(--text-primary);padding:8px 10px;border-radius:var(--radius);font-size:13px;font-family:inherit" />
+                <input type="number" id="calc-qty" placeholder="Qty" min="0.001" step="0.001" style="flex:0 0 70px;background:var(--surface);border:1px solid var(--border-mid);color:var(--text-primary);padding:8px 10px;border-radius:var(--radius);font-size:13px;font-family:inherit" />
+                <select id="calc-unit" style="flex:0 0 70px;background:var(--surface);border:1px solid var(--border-mid);color:var(--text-primary);padding:8px 10px;border-radius:var(--radius);font-size:13px;font-family:inherit">
+                  <option value="gr">gr</option>
+                  <option value="ml">ml</option>
+                  <option value="pcs">pcs</option>
+                  <option value="kg">kg</option>
+                  <option value="ltr">ltr</option>
+                </select>
+                <input type="number" id="calc-cost" placeholder="Rp/unit" min="0" step="1" style="flex:0 0 100px;background:var(--surface);border:1px solid var(--border-mid);color:var(--text-primary);padding:8px 10px;border-radius:var(--radius);font-size:13px;font-family:inherit" />
+                <button class="btn-secondary" id="btn-calc-add-line">+ Add</button>
+              </div>
+
+              <!-- Summary -->
+              <div class="cost-summary-box" id="calc-summary">
+                <div class="cost-summary-row">
+                  <span>Total Recipe Cost</span>
+                  <span class="mono" id="calc-total">Rp 0</span>
+                </div>
+                <div class="form-row" style="margin-top:12px">
+                  <label>Portions this recipe makes
+                    <input type="number" id="calc-portions" min="1" step="1" value="1" />
+                  </label>
+                  <label class="readonly-label">Cost per Portion
+                    <input type="text" id="calc-per-portion" readonly />
+                  </label>
+                  <label class="readonly-label">Suggested Price (30% food cost)
+                    <input type="text" id="calc-suggested-price" readonly />
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-actions" style="padding-top:12px">
+                <button class="btn-primary" id="btn-calc-save">Save session</button>
+                <span class="form-feedback" id="calc-feedback"></span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div><!-- /pages -->
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/supabase.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
