@@ -719,6 +719,101 @@ function renderStockTable(stock) {
 
 let _ingredients = [];
 
+// async function loadPurchases() {
+//   const [ingredients, suppliers, history] = await Promise.all([
+//     fetchIngredientItems(),
+//     fetchSuppliers(),
+//     fetchPurchaseHistory(),
+//   ]);
+
+//   _ingredients = ingredients;
+
+//   const itemSel = document.getElementById("po-item");
+//   itemSel.innerHTML =
+//     '<option value="">— select ingredient —</option>' +
+//     ingredients
+//       .map(
+//         (i) =>
+//           `<option value="${i.item_id}" data-conv="${i.conversion}" data-pu="${i.purchase_unit}">${i.item_name} (${i.purchase_unit})</option>`,
+//       )
+//       .join("");
+
+//   const supSel = document.getElementById("po-supplier");
+//   supSel.innerHTML =
+//     '<option value="">— select supplier —</option>' +
+//     suppliers
+//       .map(
+//         (s) => `<option value="${s.supplier_id}">${s.supplier_name}</option>`,
+//       )
+//       .join("");
+
+//   document.getElementById("po-date").value = today();
+
+//   // Auto-calculate usage qty and total
+//   const recalcPO = () => {
+//     const opt = itemSel.selectedOptions[0];
+//     const conv = parseFloat(opt?.dataset.conv || 1);
+//     const qty = parseFloat(document.getElementById("po-qty").value) || 0;
+//     const price = parseFloat(document.getElementById("po-price").value) || 0;
+//     const pu = opt?.dataset.pu || "";
+
+//     document.getElementById("po-qty-usage").value = qty
+//       ? fmtNum(qty * conv) +
+//         " " +
+//         (pu === "kg" ? "gr" : pu === "ltr" ? "ml" : "pcs")
+//       : "";
+//     document.getElementById("po-total").value =
+//       qty && price ? "Rp " + (qty * price).toLocaleString("id-ID") : "";
+//   };
+
+//   itemSel.addEventListener("change", recalcPO);
+//   document.getElementById("po-qty").addEventListener("input", recalcPO);
+//   document.getElementById("po-price").addEventListener("input", recalcPO);
+
+//   document.getElementById("po-form").onsubmit = handlePOSubmit;
+//   renderPOTable(history);
+// }
+
+// async function handlePOSubmit(e) {
+//   e.preventDefault();
+//   const fb = document.getElementById("po-feedback");
+//   const btn = e.target.querySelector("button[type=submit]");
+//   btn.disabled = true;
+//   fb.textContent = "Saving…";
+//   fb.className = "form-feedback";
+
+//   const opt = document.getElementById("po-item").selectedOptions[0];
+//   const conv = parseFloat(opt?.dataset.conv || 1);
+//   const qtyPU = parseFloat(document.getElementById("po-qty").value);
+
+//   const po = {
+//     date: document.getElementById("po-date").value,
+//     supplier_id: document.getElementById("po-supplier").value || null,
+//     item_id: document.getElementById("po-item").value,
+//     qty_purchase_unit: qtyPU,
+//     qty_usage_unit: qtyPU * conv,
+//     unit_price: parseFloat(document.getElementById("po-price").value),
+//     ref: document.getElementById("po-ref").value || null,
+//     status: "received",
+//     created_by: "purchasing",
+//   };
+
+//   const result = await insertPurchaseOrder(po);
+//   if (result.error) {
+//     fb.textContent = "Error: " + result.error;
+//     fb.className = "form-feedback error";
+//   } else {
+//     fb.textContent = "✓ Purchase recorded";
+//     e.target.reset();
+//     document.getElementById("po-date").value = today();
+//     const history = await fetchPurchaseHistory();
+//     renderPOTable(history);
+//   }
+//   btn.disabled = false;
+// }
+
+let _poLines = []; // batch lines in memory
+
 async function loadPurchases() {
   const [ingredients, suppliers, history] = await Promise.all([
     fetchIngredientItems(),
@@ -727,9 +822,19 @@ async function loadPurchases() {
   ]);
 
   _ingredients = ingredients;
+  _poLines = [];
 
-  const itemSel = document.getElementById("po-item");
-  itemSel.innerHTML =
+  // Populate supplier dropdown
+  document.getElementById("po-supplier").innerHTML =
+    '<option value="">— select supplier —</option>' +
+    suppliers
+      .map(
+        (s) => `<option value="${s.supplier_id}">${s.supplier_name}</option>`,
+      )
+      .join("");
+
+  // Populate line item dropdown
+  document.getElementById("po-line-item").innerHTML =
     '<option value="">— select ingredient —</option>' +
     ingredients
       .map(
@@ -738,74 +843,142 @@ async function loadPurchases() {
       )
       .join("");
 
-  const supSel = document.getElementById("po-supplier");
-  supSel.innerHTML =
-    '<option value="">— select supplier —</option>' +
-    suppliers
-      .map(
-        (s) => `<option value="${s.supplier_id}">${s.supplier_name}</option>`,
-      )
-      .join("");
-
   document.getElementById("po-date").value = today();
 
-  // Auto-calculate usage qty and total
-  const recalcPO = () => {
-    const opt = itemSel.selectedOptions[0];
+  // Auto-calc usage qty when item or qty changes
+  const recalcLine = () => {
+    const sel = document.getElementById("po-line-item");
+    const opt = sel.selectedOptions[0];
     const conv = parseFloat(opt?.dataset.conv || 1);
-    const qty = parseFloat(document.getElementById("po-qty").value) || 0;
-    const price = parseFloat(document.getElementById("po-price").value) || 0;
     const pu = opt?.dataset.pu || "";
-
-    document.getElementById("po-qty-usage").value = qty
+    const qty = parseFloat(document.getElementById("po-line-qty").value) || 0;
+    document.getElementById("po-line-usage").value = qty
       ? fmtNum(qty * conv) +
         " " +
         (pu === "kg" ? "gr" : pu === "ltr" ? "ml" : "pcs")
       : "";
-    document.getElementById("po-total").value =
-      qty && price ? "Rp " + (qty * price).toLocaleString("id-ID") : "";
   };
+  document.getElementById("po-line-item").onchange = recalcLine;
+  document.getElementById("po-line-qty").oninput = recalcLine;
 
-  itemSel.addEventListener("change", recalcPO);
-  document.getElementById("po-qty").addEventListener("input", recalcPO);
-  document.getElementById("po-price").addEventListener("input", recalcPO);
+  document.getElementById("btn-po-add-line").onclick = handlePOAddLine;
+  document.getElementById("btn-po-submit").onclick = handlePOSubmit;
 
-  document.getElementById("po-form").onsubmit = handlePOSubmit;
+  renderPOLines();
   renderPOTable(history);
 }
 
-async function handlePOSubmit(e) {
-  e.preventDefault();
+function handlePOAddLine() {
+  const sel = document.getElementById("po-line-item");
+  const opt = sel.selectedOptions[0];
+  const itemId = sel.value;
+  const itemName = opt?.text || "";
+  const conv = parseFloat(opt?.dataset.conv || 1);
+  const pu = opt?.dataset.pu || "";
+  const qty = parseFloat(document.getElementById("po-line-qty").value);
+  const price = parseFloat(document.getElementById("po-line-price").value);
+
+  if (!itemId || !qty || isNaN(price) || price < 0) return;
+
+  _poLines.push({
+    item_id: itemId,
+    item_name: itemName,
+    qty_purchase_unit: qty,
+    qty_usage_unit: qty * conv,
+    unit_price: price,
+    purchase_unit: pu,
+  });
+
+  // Clear line inputs
+  sel.value = "";
+  document.getElementById("po-line-qty").value = "";
+  document.getElementById("po-line-usage").value = "";
+  document.getElementById("po-line-price").value = "";
+
+  renderPOLines();
+}
+
+function renderPOLines() {
+  const body = document.getElementById("po-lines-body");
+  const summary = document.getElementById("po-batch-summary");
+  const submitBtn = document.getElementById("btn-po-submit");
+
+  if (!_poLines.length) {
+    body.innerHTML = `<div style="padding: 12px 0; font-size:13px; color:var(--text-muted);">No items added yet — use the row above to add items.</div>`;
+    summary.style.display = "none";
+    submitBtn.disabled = true;
+    return;
+  }
+
+  const total = _poLines.reduce(
+    (sum, l) => sum + l.qty_purchase_unit * l.unit_price,
+    0,
+  );
+
+  body.innerHTML = _poLines
+    .map(
+      (l, i) => `
+    <div style="display:grid; grid-template-columns: 2fr 1fr 1fr 1fr 32px; gap:12px; align-items:center; padding:8px 0; border-bottom:1px solid var(--border); font-size:13px;">
+      <span style="color:var(--text-primary);">${l.item_name}</span>
+      <span class="mono">${fmtNum(l.qty_purchase_unit)}</span>
+      <span class="mono" style="color:var(--text-muted); font-size:11px;">${fmtNum(l.qty_usage_unit)} ${l.purchase_unit === "kg" ? "gr" : l.purchase_unit === "ltr" ? "ml" : "pcs"}</span>
+      <span class="mono">Rp ${l.unit_price.toLocaleString("id-ID")}</span>
+      <button onclick="removePOLine(${i})" style="background:none; border:none; cursor:pointer; color:var(--red); font-size:16px; padding:0;">×</button>
+    </div>
+  `,
+    )
+    .join("");
+
+  document.getElementById("po-batch-total").textContent =
+    "Rp " + total.toLocaleString("id-ID");
+  summary.style.display = "block";
+  submitBtn.disabled = false;
+}
+
+function removePOLine(index) {
+  _poLines.splice(index, 1);
+  renderPOLines();
+}
+
+async function handlePOSubmit() {
+  if (!_poLines.length) return;
   const fb = document.getElementById("po-feedback");
-  const btn = e.target.querySelector("button[type=submit]");
+  const btn = document.getElementById("btn-po-submit");
   btn.disabled = true;
   fb.textContent = "Saving…";
   fb.className = "form-feedback";
 
-  const opt = document.getElementById("po-item").selectedOptions[0];
-  const conv = parseFloat(opt?.dataset.conv || 1);
-  const qtyPU = parseFloat(document.getElementById("po-qty").value);
+  const date = document.getElementById("po-date").value;
+  const supplierId = document.getElementById("po-supplier").value || null;
+  const ref = document.getElementById("po-ref").value || null;
 
-  const po = {
-    date: document.getElementById("po-date").value,
-    supplier_id: document.getElementById("po-supplier").value || null,
-    item_id: document.getElementById("po-item").value,
-    qty_purchase_unit: qtyPU,
-    qty_usage_unit: qtyPU * conv,
-    unit_price: parseFloat(document.getElementById("po-price").value),
-    ref: document.getElementById("po-ref").value || null,
-    status: "received",
-    created_by: "purchasing",
-  };
+  const results = await Promise.all(
+    _poLines.map((l) =>
+      insertPurchaseOrder({
+        date,
+        supplier_id: supplierId,
+        item_id: l.item_id,
+        qty_purchase_unit: l.qty_purchase_unit,
+        qty_usage_unit: l.qty_usage_unit,
+        unit_price: l.unit_price,
+        ref,
+        status: "received",
+        created_by: "purchasing",
+      }),
+    ),
+  );
 
-  const result = await insertPurchaseOrder(po);
-  if (result.error) {
-    fb.textContent = "Error: " + result.error;
+  const failed = results.filter((r) => r.error);
+  if (failed.length) {
+    fb.textContent = `${failed.length} item(s) failed to save.`;
     fb.className = "form-feedback error";
   } else {
-    fb.textContent = "✓ Purchase recorded";
-    e.target.reset();
+    fb.textContent = `✓ ${_poLines.length} item(s) recorded`;
+    fb.className = "form-feedback success";
+    _poLines = [];
+    document.getElementById("po-ref").value = "";
     document.getElementById("po-date").value = today();
+    renderPOLines();
     const history = await fetchPurchaseHistory();
     renderPOTable(history);
   }

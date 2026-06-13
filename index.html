@@ -583,7 +583,7 @@
 
         <!-- ── PAGE: PURCHASES ── -->
         <section class="page" id="page-purchases">
-          <div class="card full-width">
+          <!-- <div class="card full-width">
             <div class="card-header">
               <span class="card-title">Log a Purchase</span>
               <span class="card-sub">Received stock from supplier</span>
@@ -665,6 +665,154 @@
                 <span class="form-feedback" id="po-feedback"></span>
               </div>
             </form>
+          </div> -->
+
+          <div class="card full-width">
+            <div class="card-header">
+              <span class="card-title">Log a Purchase</span>
+              <span class="card-sub">Received stock from supplier</span>
+            </div>
+            <div
+              style="padding: 16px 20px; border-bottom: 1px solid var(--border)"
+            >
+              <!-- Receipt header: shared across all lines -->
+              <div class="form-row" style="grid-template-columns: 1fr 1fr 1fr">
+                <label
+                  >Supplier
+                  <select id="po-supplier">
+                    <option value="">— select supplier —</option>
+                  </select>
+                </label>
+                <label
+                  >Date
+                  <input type="date" id="po-date" required />
+                </label>
+                <label
+                  >Ref / PO Number
+                  <input
+                    type="text"
+                    id="po-ref"
+                    placeholder="e.g. PO-APR-001"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <!-- Line items -->
+            <div style="padding: 16px 20px">
+              <div
+                class="os-line-header"
+                style="
+                  grid-template-columns: 2fr 1fr 1fr 1fr 32px;
+                  margin-bottom: 4px;
+                "
+              >
+                <span>Item</span><span>Qty (purchase unit)</span
+                ><span>Usage Qty</span><span>Unit Price (Rp)</span><span></span>
+              </div>
+              <div id="po-lines-body"></div>
+
+              <!-- Add line row -->
+              <div class="recipe-add-row" style="padding: 10px 0; gap: 8px">
+                <select id="po-line-item" style="flex: 2; min-width: 180px">
+                  <option value="">— select ingredient —</option>
+                </select>
+                <input
+                  type="number"
+                  id="po-line-qty"
+                  placeholder="Qty"
+                  min="0.1"
+                  step="0.1"
+                  style="
+                    flex: 0 0 100px;
+                    background: var(--surface);
+                    border: 1px solid var(--border-mid);
+                    color: var(--text-primary);
+                    padding: 8px 10px;
+                    border-radius: var(--radius);
+                    font-size: 13px;
+                    font-family: inherit;
+                  "
+                />
+                <input
+                  type="text"
+                  id="po-line-usage"
+                  readonly
+                  placeholder="auto"
+                  style="
+                    flex: 0 0 100px;
+                    background: var(--surface-2);
+                    border: 1px solid var(--border);
+                    color: var(--text-muted);
+                    padding: 8px 10px;
+                    border-radius: var(--radius);
+                    font-size: 13px;
+                    font-family: inherit;
+                  "
+                />
+                <input
+                  type="number"
+                  id="po-line-price"
+                  placeholder="Rp/unit"
+                  min="0"
+                  style="
+                    flex: 0 0 120px;
+                    background: var(--surface);
+                    border: 1px solid var(--border-mid);
+                    color: var(--text-primary);
+                    padding: 8px 10px;
+                    border-radius: var(--radius);
+                    font-size: 13px;
+                    font-family: inherit;
+                  "
+                />
+                <button class="btn-secondary" id="btn-po-add-line">
+                  + Add
+                </button>
+              </div>
+
+              <!-- Totals summary -->
+              <div
+                id="po-batch-summary"
+                style="
+                  display: none;
+                  margin-top: 8px;
+                  padding: 12px 16px;
+                  background: var(--surface-2);
+                  border: 1px solid var(--border);
+                  border-radius: var(--radius);
+                "
+              >
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                  "
+                >
+                  <span style="font-size: 13px; color: var(--text-secondary)"
+                    >Total Receipt Value</span
+                  >
+                  <span
+                    class="mono"
+                    id="po-batch-total"
+                    style="
+                      font-size: 20px;
+                      font-weight: 700;
+                      color: var(--text-primary);
+                    "
+                    >Rp 0</span
+                  >
+                </div>
+              </div>
+
+              <div class="form-actions" style="padding-top: 16px">
+                <button class="btn-primary" id="btn-po-submit" disabled>
+                  Record Purchase
+                </button>
+                <span class="form-feedback" id="po-feedback"></span>
+              </div>
+            </div>
           </div>
 
           <div class="card full-width">
@@ -1363,23 +1511,26 @@
 
         <!-- ── PAGE: LEDGER ── -->
         <section class="page" id="page-ledger">
-          <div class="card-header" style="flex-wrap: wrap; gap: 10px">
-            <div>
-              <span class="card-title">Movement History</span>
-              <span class="card-sub"
-                >Every inventory change — fully traceable</span
-              >
-            </div>
-            <div
+          <div class="card-header" style="gap: 12px">
+            <input
+              type="text"
+              id="ledger-search"
+              placeholder="Search item or ref…"
               style="
-                display: flex;
-                gap: 8px;
-                align-items: center;
-                margin-left: auto;
-                flex-wrap: wrap;
+                flex: 1;
+                background: var(--surface);
+                border: 1px solid var(--border-mid);
+                color: var(--text-primary);
+                padding: 6px 12px;
+                border-radius: var(--radius);
+                font-size: 13px;
+                font-family: inherit;
               "
-            >
-              <!-- Search -->
+            />
+            <div class="filter-row" style="margin-left: 0; align-items: center">
+              <!-- <div class="card-header" style="gap: 8px; flex-wrap: wrap;">
+               <div class="filter-row" style="flex: 1; flex-wrap: wrap; align-items: center; margin-left: 0;"> -->
+              <!-- Search
               <input
                 type="text"
                 id="ledger-search"
@@ -1394,7 +1545,7 @@
                   font-family: inherit;
                   width: 180px;
                 "
-              />
+              /> -->
               <!-- Date range presets -->
               <div style="display: flex; gap: 4px">
                 <button
