@@ -33,9 +33,17 @@ const ROLE_PAGES = {
     "ledger",
     "costing",
     "calculator",
+    "waste",
   ],
   purchase: ["dashboard", "purchases", "suppliers", "items", "costing"],
-  kitchen: ["dashboard", "production", "stock", "recipes", "adjustments"],
+  kitchen: [
+    "dashboard",
+    "production",
+    "stock",
+    "recipes",
+    "adjustments",
+    "waste",
+  ],
   service: ["dashboard", "service"],
 };
 
@@ -54,6 +62,7 @@ const NAV_LABEL_TO_PAGE = {
   ledger: "ledger",
   costing: "costing",
   calculator: "calculator",
+  waste: "waste",
 };
 
 let _currentRole = "superadmin";
@@ -166,6 +175,7 @@ function initNav() {
         ledger: "Ledger",
         costing: "Costing",
         calculator: "Calculator",
+        waste: "Waste",
       };
       document.getElementById("page-title").textContent = titles[page] || page;
       loadPage(page);
@@ -207,6 +217,8 @@ async function loadPage(page) {
       return loadCosting();
     case "calculator":
       return loadCalculator();
+    case "waste":
+      return loadWaste();
   }
 }
 
@@ -261,24 +273,26 @@ function latestPriceByDish(sales) {
 // Build a profitability row per Dish recipe.
 function buildProfitability(recipeCosts, sales) {
   const priceMap = latestPriceByDish(sales);
-  return (recipeCosts || [])
-    .filter((r) => r.category === "Dish")
-    .map((r) => {
-      const cost = r.cost_per_portion != null ? Number(r.cost_per_portion) : null;
-      const price = priceMap[r.output_item_id] ?? null;
-      const pct =
-        cost != null && price ? (cost / price) * 100 : null;
-      return {
-        id: r.output_item_id,
-        name: r.recipe_name,
-        cost,
-        price,
-        pct,
-        health: fcHealth(pct),
-      };
-    })
-    // Riskiest first; unknowns sink to the bottom.
-    .sort((a, b) => (b.pct ?? -1) - (a.pct ?? -1));
+  return (
+    (recipeCosts || [])
+      .filter((r) => r.category === "Dish")
+      .map((r) => {
+        const cost =
+          r.cost_per_portion != null ? Number(r.cost_per_portion) : null;
+        const price = priceMap[r.output_item_id] ?? null;
+        const pct = cost != null && price ? (cost / price) * 100 : null;
+        return {
+          id: r.output_item_id,
+          name: r.recipe_name,
+          cost,
+          price,
+          pct,
+          health: fcHealth(pct),
+        };
+      })
+      // Riskiest first; unknowns sink to the bottom.
+      .sort((a, b) => (b.pct ?? -1) - (a.pct ?? -1))
+  );
 }
 
 function renderProfitWatchlist(rows) {
@@ -290,12 +304,23 @@ function renderProfitWatchlist(rows) {
     return;
   }
 
-  const label = { good: "Healthy", watch: "Watch", danger: "Danger", unknown: "No price" };
+  const label = {
+    good: "Healthy",
+    watch: "Watch",
+    danger: "Danger",
+    unknown: "No price",
+  };
 
   tbody.innerHTML = rows
     .map((r) => {
-      const costTxt = r.cost != null ? "Rp " + Math.round(r.cost).toLocaleString("id-ID") : "—";
-      const priceTxt = r.price != null ? "Rp " + Math.round(r.price).toLocaleString("id-ID") : "—";
+      const costTxt =
+        r.cost != null
+          ? "Rp " + Math.round(r.cost).toLocaleString("id-ID")
+          : "—";
+      const priceTxt =
+        r.price != null
+          ? "Rp " + Math.round(r.price).toLocaleString("id-ID")
+          : "—";
       const pctTxt = r.pct != null ? r.pct.toFixed(0) + "%" : "—";
       return `
       <tr>
@@ -314,12 +339,13 @@ function renderHealthBanner(rows, stock) {
   if (!banner) return;
 
   const priced = rows.filter((r) => r.pct != null);
-  const avg =
-    priced.length
-      ? priced.reduce((s, r) => s + r.pct, 0) / priced.length
-      : null;
+  const avg = priced.length
+    ? priced.reduce((s, r) => s + r.pct, 0) / priced.length
+    : null;
   const dangerCount = rows.filter((r) => r.health === "danger").length;
-  const stockAlerts = (stock || []).filter((s) => s.stock_status !== "ok").length;
+  const stockAlerts = (stock || []).filter(
+    (s) => s.stock_status !== "ok",
+  ).length;
 
   // Overall verdict: danger if any dish is in the red OR avg food cost is high.
   let state, headline;
@@ -2378,4 +2404,124 @@ async function handleDeleteSession() {
   document.getElementById("calc-editor-card").style.display = "none";
   const sessions = await fetchCalculatorSessions();
   renderCalcSessionList(sessions);
+}
+// ── WASTE ────────────────────────────────────────────────────
+
+async function loadWaste() {
+  document.getElementById("waste-date").value = today();
+
+  const allItems = await fetchAllItemsMaster();
+  const sel = document.getElementById("waste-item");
+  sel.innerHTML =
+    '<option value="">— select item —</option>' +
+    allItems
+      .map(
+        (i) =>
+          `<option value="${i.item_id}" data-unit="${i.usage_unit}">${i.item_name} (${i.usage_unit})</option>`,
+      )
+      .join("");
+
+  sel.onchange = () => {
+    const unit = sel.selectedOptions[0]?.dataset.unit || "";
+    document.getElementById("waste-unit-label").textContent = unit;
+  };
+
+  document.getElementById("btn-waste-save").onclick = handleWasteSave;
+
+  const history = await fetchWasteHistory();
+  renderWasteTable(history);
+}
+
+async function handleWasteSave() {
+  const fb = document.getElementById("waste-feedback");
+  const btn = document.getElementById("btn-waste-save");
+  const sel = document.getElementById("waste-item");
+  const itemId = sel.value;
+  const date = document.getElementById("waste-date").value;
+  const qty = parseFloat(document.getElementById("waste-qty").value);
+  const reason = document.getElementById("waste-reason").value;
+  const notes = document.getElementById("waste-notes").value.trim();
+  const unit = sel.selectedOptions[0]?.dataset.unit || "";
+
+  if (!itemId || !date || isNaN(qty) || qty <= 0) {
+    fb.textContent = "Item, date, and quantity are required";
+    fb.className = "form-feedback error";
+    return;
+  }
+
+  btn.disabled = true;
+  fb.textContent = "Saving…";
+  fb.className = "form-feedback";
+
+  const dateFmt = date.replace(/-/g, "");
+  const wasteId = `WST-${dateFmt}-${Date.now().toString().slice(-3)}`;
+
+  const wasteLog = {
+    id: wasteId,
+    date,
+    item_id: itemId,
+    qty,
+    reason,
+    notes: notes || null,
+    created_by: "kitchen",
+  };
+
+  const ledgerRow = {
+    date,
+    item_id: itemId,
+    in_qty: 0,
+    out_qty: qty,
+    source: "WASTE",
+    ref: wasteId,
+    notes: `${reason}${notes ? " — " + notes : ""}`,
+    created_by: "kitchen",
+  };
+
+  const { error } = await insertWasteRecord(wasteLog, ledgerRow);
+  if (error) {
+    fb.textContent = "Error: " + error;
+    fb.className = "form-feedback error";
+  } else {
+    fb.textContent = `✓ Waste recorded — ${fmtNum(qty)} ${unit} (${reason})`;
+    fb.className = "form-feedback";
+    document.getElementById("waste-item").value = "";
+    document.getElementById("waste-qty").value = "";
+    document.getElementById("waste-notes").value = "";
+    document.getElementById("waste-unit-label").textContent = "";
+    const history = await fetchWasteHistory();
+    renderWasteTable(history);
+  }
+  btn.disabled = false;
+}
+
+function renderWasteTable(history) {
+  const tbody = document.getElementById("waste-tbody");
+  if (!history.length) {
+    tbody.innerHTML =
+      '<tr><td colspan="7" class="loading-row">No waste recorded yet</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = history
+    .map((w) => {
+      const reasonColors = {
+        spoilage: "var(--red)",
+        overproduction: "var(--amber)",
+        breakage: "var(--amber)",
+        expired: "var(--red)",
+        other: "var(--slate-400)",
+      };
+      const col = reasonColors[w.reason] || "var(--slate-400)";
+      return `
+      <tr>
+        <td>${fmtDate(w.date)}</td>
+        <td>${w.items?.item_name || w.item_id}</td>
+        <td style="font-size:11px;color:var(--slate-400)">${w.items?.category || "—"}</td>
+        <td class="mono" style="color:var(--red)">${fmtNum(w.qty)}</td>
+        <td style="font-size:11px;color:var(--slate-400)">${w.items?.usage_unit || "—"}</td>
+        <td><span style="font-size:11px;font-weight:600;color:${col}">${w.reason}</span></td>
+        <td style="font-size:11px;color:var(--slate-400)">${w.notes || "—"}</td>
+      </tr>`;
+    })
+    .join("");
 }
