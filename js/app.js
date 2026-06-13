@@ -10,7 +10,15 @@ document.addEventListener("DOMContentLoaded", () => {
   checkConfig();
   initNav();
   initRoles();
-  loadPage("dashboard");
+  const savedPage = localStorage.getItem("bh_cogs_page") || "dashboard";
+  const savedNavItem = document.querySelector(
+    `.nav-item[data-page="${savedPage}"]`,
+  );
+  if (savedNavItem) {
+    savedNavItem.click();
+  } else {
+    loadPage("dashboard");
+  }
 });
 
 // ── ROLES (frontend-only page hiding) ───────────────────────
@@ -179,6 +187,7 @@ function initNav() {
       };
       document.getElementById("page-title").textContent = titles[page] || page;
       loadPage(page);
+      localStorage.setItem("bh_cogs_page", page);
     });
   });
 
@@ -1924,26 +1933,111 @@ function renderAdjTable(history) {
 // ── LEDGER ───────────────────────────────────────────────────
 
 let _allLedger = [];
+let _activeLedgerRange = "today";
+
+function getLedgerDateRange(range) {
+  const to = new Date().toISOString().slice(0, 10);
+  if (range === "today") {
+    return { from: to, to };
+  }
+  const from = new Date(Date.now() - parseInt(range) * 86400000)
+    .toISOString()
+    .slice(0, 10);
+  return { from, to };
+}
 
 async function loadLedger() {
-  _allLedger = await fetchLedgerHistory();
-  renderLedgerTable(_allLedger);
+  const { from, to } = getLedgerDateRange(_activeLedgerRange);
+  _allLedger = await fetchLedgerHistory({ from, to });
+  filterLedger();
 
   document.getElementById("ledger-filter-source").onchange = filterLedger;
   document.getElementById("ledger-filter-cat").onchange = filterLedger;
+  document.getElementById("ledger-search").oninput = filterLedger;
+
+  document.querySelectorAll(".ledger-range-btn").forEach((btn) => {
+    btn.onclick = async () => {
+      _activeLedgerRange = btn.dataset.range;
+      document
+        .querySelectorAll(".ledger-range-btn")
+        .forEach((b) => b.classList.remove("active-range"));
+      btn.classList.add("active-range");
+      const { from, to } = getLedgerDateRange(_activeLedgerRange);
+      _allLedger = await fetchLedgerHistory({ from, to });
+      filterLedger();
+    };
+  });
+
+  document.getElementById("btn-ledger-export").onclick = () => {
+    const headers = [
+      "Date",
+      "Item",
+      "Category",
+      "In",
+      "Out",
+      "Net",
+      "Unit",
+      "Source",
+      "Ref",
+      "Notes",
+    ];
+    const visibleRows = getFilteredLedger();
+    const rows = visibleRows.map((r) =>
+      [
+        r.date,
+        r.item_name,
+        r.category,
+        r.in_qty,
+        r.out_qty,
+        r.net_qty,
+        r.usage_unit,
+        r.source,
+        r.ref || "",
+        r.notes || "",
+      ].join(","),
+    );
+    const blob = new Blob([[headers.join(","), ...rows].join("\n")], {
+      type: "text/csv",
+    });
+    const a = Object.assign(document.createElement("a"), {
+      href: URL.createObjectURL(blob),
+      download: `ledger-${new Date().toISOString().slice(0, 10)}.csv`,
+    });
+    a.click();
+  };
+}
+
+function getFilteredLedger() {
+  const source = document.getElementById("ledger-filter-source").value;
+  const cat = document.getElementById("ledger-filter-cat").value;
+  const search = document
+    .getElementById("ledger-search")
+    .value.trim()
+    .toLowerCase();
+  return _allLedger.filter((r) => {
+    if (source && r.source !== source) return false;
+    if (cat && r.category !== cat) return false;
+    if (
+      search &&
+      !r.item_name?.toLowerCase().includes(search) &&
+      !r.ref?.toLowerCase().includes(search)
+    )
+      return false;
+    return true;
+  });
 }
 
 function filterLedger() {
-  const source = document.getElementById("ledger-filter-source").value;
-  const cat = document.getElementById("ledger-filter-cat").value;
-  const filtered = _allLedger.filter(
-    (r) => (!source || r.source === source) && (!cat || r.category === cat),
-  );
+  const filtered = getFilteredLedger();
   renderLedgerTable(filtered);
 }
 
 function renderLedgerTable(rows) {
   const tbody = document.getElementById("ledger-tbody");
+  document.getElementById("ledger-row-count").textContent = rows.length
+    ? `${rows.length} rows`
+    : "";
+
   if (!rows.length) {
     tbody.innerHTML =
       '<tr><td colspan="10" class="loading-row">No movements found</td></tr>';
@@ -2279,6 +2373,11 @@ async function openCalcSession(sessionId, name) {
   _calcSessionId = sessionId;
   _calcLines = [];
 
+  const editorCard = document.getElementById("calc-editor-card");
+  editorCard.style.display = "block";
+  document
+    .querySelector("#page-calculator .calc-layout")
+    .classList.add("has-editor");
   document.getElementById("calc-editor-card").style.display = "block";
   document.getElementById("calc-session-title").textContent = name;
   document.getElementById("calc-feedback").textContent = "";
@@ -2299,18 +2398,72 @@ async function openCalcSession(sessionId, name) {
   recalcCalcSummary();
 }
 
-async function handleNewSession() {
-  const name = prompt('Session name (e.g. "Truffle Burger test"):');
-  if (!name?.trim()) return;
-  const { data, error } = await createCalculatorSession(name.trim(), null);
-  if (error) {
-    alert("Error: " + error);
-    return;
+// sync function handleNewSession() {
+//   const name = prompt('Session name (e.g. "Truffle Burger test"):');
+//   if (!name?.trim()) return;
+//   const { data, error } = await createCalculatorSession(name.trim(), null);
+//   if (error) {
+//     alert("Error: " + error);
+//     return;
+//   }
+
+//   const sessions = await fetchCalculatorSessions();
+//   renderCalcSessionList(sessions);
+//   openCalcSession(data.id, data.name);
+// }
+
+function handleNewSession() {
+  const overlay = document.getElementById("session-name-overlay");
+  const input = document.getElementById("session-name-input");
+  const confirmBtn = document.getElementById("session-name-confirm");
+  const cancelBtn = document.getElementById("session-name-cancel");
+
+  input.value = "";
+  overlay.style.display = "flex";
+  setTimeout(() => input.focus(), 50);
+
+  async function doCreate() {
+    const name = input.value.trim();
+    if (!name) {
+      input.focus();
+      return;
+    }
+    overlay.style.display = "none";
+    const { data, error } = await createCalculatorSession(name, null);
+    if (error) {
+      alert("Error: " + error);
+      return;
+    }
+    const sessions = await fetchCalculatorSessions();
+    renderCalcSessionList(sessions);
+    openCalcSession(data.id, data.name);
   }
 
-  const sessions = await fetchCalculatorSessions();
-  renderCalcSessionList(sessions);
-  openCalcSession(data.id, data.name);
+  function doCancel() {
+    overlay.style.display = "none";
+    cleanup();
+  }
+
+  function onKey(e) {
+    if (e.key === "Enter") doCreate();
+    if (e.key === "Escape") doCancel();
+  }
+
+  function cleanup() {
+    confirmBtn.removeEventListener("click", doCreate);
+    cancelBtn.removeEventListener("click", doCancel);
+    input.removeEventListener("keydown", onKey);
+    overlay.removeEventListener("click", onOverlayClick);
+  }
+
+  function onOverlayClick(e) {
+    if (e.target === overlay) doCancel();
+  }
+
+  confirmBtn.addEventListener("click", doCreate);
+  cancelBtn.addEventListener("click", doCancel);
+  input.addEventListener("keydown", onKey);
+  overlay.addEventListener("click", onOverlayClick);
 }
 
 function handleCalcAddLine() {
@@ -2402,6 +2555,9 @@ async function handleDeleteSession() {
   _calcSessionId = null;
   _calcLines = [];
   document.getElementById("calc-editor-card").style.display = "none";
+  document
+    .querySelector("#page-calculator .calc-layout")
+    .classList.remove("has-editor");
   const sessions = await fetchCalculatorSessions();
   renderCalcSessionList(sessions);
 }

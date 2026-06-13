@@ -15,11 +15,11 @@
   <body>
     <!-- SIDEBAR -->
     <aside class="sidebar">
-      <div class="sidebar-brand">
+      <div class="sidebar-brand" style="text-align: center">
         <img
           src="assets/logo-white.png"
           alt="Blue Heron logo"
-          style="height: 80px; margin-right: 8px"
+          style="height: 52px; margin-right: 8px"
         />
         <!-- <span class="brand-sub">Ops Dashboard</span> -->
       </div>
@@ -1363,53 +1363,111 @@
 
         <!-- ── PAGE: LEDGER ── -->
         <section class="page" id="page-ledger">
-          <div class="card full-width">
-            <div class="card-header">
+          <div class="card-header" style="flex-wrap: wrap; gap: 10px">
+            <div>
               <span class="card-title">Movement History</span>
               <span class="card-sub"
                 >Every inventory change — fully traceable</span
               >
-              <div class="filter-row">
-                <select id="ledger-filter-source">
-                  <option value="">All sources</option>
-                  <option value="OPENING">Opening</option>
-                  <option value="PURCHASE">Purchase</option>
-                  <option value="PROD_OUT">Prod Out</option>
-                  <option value="PROD_USE">Prod Use</option>
-                  <option value="SALE">Sale</option>
-                  <option value="ADJUSTMENT">Adjustment</option>
-                </select>
-                <select id="ledger-filter-cat">
-                  <option value="">All categories</option>
-                  <option value="Ingredient">Ingredient</option>
-                  <option value="Prep">Prep</option>
-                  <option value="Dish">Dish</option>
-                </select>
+            </div>
+            <div
+              style="
+                display: flex;
+                gap: 8px;
+                align-items: center;
+                margin-left: auto;
+                flex-wrap: wrap;
+              "
+            >
+              <!-- Search -->
+              <input
+                type="text"
+                id="ledger-search"
+                placeholder="Search item or ref…"
+                style="
+                  background: var(--surface);
+                  border: 1px solid var(--border-mid);
+                  color: var(--text-primary);
+                  padding: 5px 10px;
+                  border-radius: var(--radius);
+                  font-size: 12px;
+                  font-family: inherit;
+                  width: 180px;
+                "
+              />
+              <!-- Date range presets -->
+              <div style="display: flex; gap: 4px">
+                <button
+                  class="ledger-range-btn active-range"
+                  data-range="today"
+                >
+                  Today
+                </button>
+                <button class="ledger-range-btn" data-range="7">7 days</button>
+                <button class="ledger-range-btn" data-range="14">
+                  2 weeks
+                </button>
+                <button class="ledger-range-btn" data-range="30">
+                  1 month
+                </button>
               </div>
+              <!-- Source + Category filters -->
+              <select id="ledger-filter-source">
+                <option value="">All sources</option>
+                <option value="OPENING">Opening</option>
+                <option value="PURCHASE">Purchase</option>
+                <option value="PROD_OUT">Prod Out</option>
+                <option value="PROD_USE">Prod Use</option>
+                <option value="SALE">Sale</option>
+                <option value="ADJUSTMENT">Adjustment</option>
+                <option value="WASTE">Waste</option>
+              </select>
+              <select id="ledger-filter-cat">
+                <option value="">All categories</option>
+                <option value="Ingredient">Ingredient</option>
+                <option value="Prep">Prep</option>
+                <option value="Dish">Dish</option>
+              </select>
+              <!-- Row count + Export -->
+              <span
+                id="ledger-row-count"
+                style="
+                  font-size: 11px;
+                  color: var(--text-muted);
+                  white-space: nowrap;
+                "
+              ></span>
+              <button
+                class="btn-secondary"
+                id="btn-ledger-export"
+                style="font-size: 12px; padding: 5px 12px"
+              >
+                ↓ CSV
+              </button>
             </div>
-            <div class="table-wrap">
-              <table class="data-table" id="ledger-table">
-                <thead>
-                  <tr>
-                    <th>Date</th>
-                    <th>Item</th>
-                    <th>Category</th>
-                    <th>In</th>
-                    <th>Out</th>
-                    <th>Net</th>
-                    <th>Unit</th>
-                    <th>Source</th>
-                    <th>Ref</th>
-                    <th>Notes</th>
-                  </tr>
-                </thead>
-                <tbody id="ledger-tbody">
-                  <tr>
-                    <td colspan="10" class="loading-row">Loading…</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="ledger-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Item</th>
+                  <th>Category</th>
+                  <th>In</th>
+                  <th>Out</th>
+                  <th>Net</th>
+                  <th>Unit</th>
+                  <th>Source</th>
+                  <th>Ref</th>
+                  <th>Notes</th>
+                </tr>
+              </thead>
+              <tbody id="ledger-tbody">
+                <tr>
+                  <td colspan="10" class="loading-row">Loading…</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </section>
 
@@ -1628,7 +1686,7 @@
 
         <!-- ── PAGE: CALCULATOR ── -->
         <section class="page" id="page-calculator">
-          <div class="two-col" style="align-items: start">
+          <div class="calc-layout">
             <!-- Session list -->
             <div class="card" style="margin-bottom: 0">
               <div class="card-header">
@@ -1650,7 +1708,7 @@
             <div
               class="card"
               id="calc-editor-card"
-              style="display: none; margin-bottom: 0"
+              style="display: none; margin-bottom: 0; width: 100%"
             >
               <div class="card-header">
                 <span class="card-title" id="calc-session-title">—</span>
@@ -1907,5 +1965,62 @@
     <script src="js/config.js"></script>
     <script src="js/supabase.js"></script>
     <script src="js/app.js"></script>
+    <!-- ── SESSION NAME MODAL ── -->
+    <div
+      id="session-name-overlay"
+      style="
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 9999;
+        background: rgba(26, 46, 61, 0.55);
+        backdrop-filter: blur(3px);
+        align-items: center;
+        justify-content: center;
+      "
+    >
+      <div
+        style="
+          background: var(--surface);
+          border: 1px solid var(--border-mid);
+          border-radius: var(--radius-lg);
+          box-shadow: 0 8px 32px rgba(26, 46, 61, 0.22);
+          padding: 28px 28px 24px;
+          width: 100%;
+          max-width: 420px;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        "
+      >
+        <div
+          style="font-size: 15px; font-weight: 600; color: var(--text-primary)"
+        >
+          New Calculator Session
+        </div>
+        <input
+          id="session-name-input"
+          type="text"
+          placeholder='e.g. "Truffle Burger test"'
+          style="
+            background: var(--surface-2);
+            border: 1px solid var(--border-mid);
+            color: var(--text-primary);
+            padding: 10px 14px;
+            border-radius: var(--radius);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition:
+              border-color 0.15s,
+              box-shadow 0.15s;
+          "
+        />
+        <div style="display: flex; justify-content: flex-end; gap: 10px">
+          <button class="btn-secondary" id="session-name-cancel">Cancel</button>
+          <button class="btn-primary" id="session-name-confirm">Create</button>
+        </div>
+      </div>
+    </div>
   </body>
 </html>
