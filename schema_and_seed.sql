@@ -150,6 +150,25 @@ WHERE cs.category IN ('Prep', 'Dish');
 -- e.g. Rp 25,000/kg ÷ 1000 = Rp 25/gr
 -- Resolved cost: cost_override wins over last purchase price
 CREATE OR REPLACE VIEW ingredient_cost AS
+WITH prep_recipe_cost AS (
+  SELECT
+    r.output_item_id                                          AS item_id,
+    SUM(r.qty * COALESCE(
+      i.cost_override,
+      (
+        SELECT po.unit_price / NULLIF(i.conversion, 0)
+        FROM purchase_orders po
+        WHERE po.item_id = i.item_id AND po.status = 'received'
+        ORDER BY po.date DESC LIMIT 1
+      ),
+      0
+    )) / NULLIF(bs.standard_yield_gram, 0)                   AS recipe_cost_per_unit
+  FROM recipes r
+  JOIN items i ON i.item_id = r.input_item_id AND i.category = 'Ingredient' AND i.is_active = TRUE
+  JOIN batch_standards bs ON bs.item_id = r.output_item_id
+  WHERE r.valid_to IS NULL
+  GROUP BY r.output_item_id, bs.standard_yield_gram
+)
 SELECT
   i.item_id,
   i.item_name,
@@ -179,7 +198,10 @@ SELECT
       FROM purchase_orders po
       WHERE po.item_id = i.item_id AND po.status = 'received'
       ORDER BY po.date DESC LIMIT 1
-    )
+    ),
+    CASE
+      WHEN i.category = 'Prep' THEN prc.recipe_cost_per_unit
+    END
   ) AS resolved_cost,
   CASE
     WHEN i.cost_override IS NOT NULL THEN 'override'
@@ -187,9 +209,11 @@ SELECT
       SELECT 1 FROM purchase_orders po
       WHERE po.item_id = i.item_id AND po.status = 'received'
     ) THEN 'purchase'
+    WHEN i.category = 'Prep' AND prc.recipe_cost_per_unit IS NOT NULL THEN 'recipe'
     ELSE 'uncosted'
   END AS cost_source
 FROM items i
+LEFT JOIN prep_recipe_cost prc ON prc.item_id = i.item_id
 WHERE i.is_active = TRUE;
 
 -- Sales log: one row per dish per end-of-day recording

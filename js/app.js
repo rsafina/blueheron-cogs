@@ -604,10 +604,11 @@ let _activeRecipeItemId = null;
 let _recipeLines = []; // pending lines not yet saved
 
 async function loadRecipes() {
-  const [prepDishItems, allInputItems, library] = await Promise.all([
+  const [prepDishItems, allInputItems, library, costs] = await Promise.all([
     fetchAllPrepAndDishItems(),
     fetchAllIngredientAndPrepItems(),
     fetchRecipeLibrary(),
+    fetchRecipeCosts(),
   ]);
 
   // Tab switching
@@ -673,7 +674,8 @@ async function loadRecipes() {
   document.getElementById("std-portion").oninput = recalcPortions;
   document.getElementById("std-form").onsubmit = handleSaveStandard;
 
-  renderRecipeLibrary(library);
+  const costMap = Object.fromEntries(costs.map((c) => [c.output_item_id, c]));
+  renderRecipeLibrary(library, costMap);
 }
 
 function switchRTab(tab) {
@@ -829,7 +831,9 @@ async function handleSaveRecipe() {
   } else {
     fb.textContent = "✓ Recipe saved";
     const library = await fetchRecipeLibrary();
-    renderRecipeLibrary(library);
+    const costs = await fetchRecipeCosts();
+    const costMap = Object.fromEntries(costs.map((c) => [c.output_item_id, c]));
+    renderRecipeLibrary(library, costMap);
   }
   btn.disabled = false;
 }
@@ -868,7 +872,7 @@ async function handleSaveStandard(e) {
   btn.disabled = false;
 }
 
-function renderRecipeLibrary(library) {
+function renderRecipeLibrary(library, costMap = {}) {
   const el = document.getElementById("recipe-library");
   if (!library.length) {
     el.innerHTML = '<div class="loading-row">No recipes yet</div>';
@@ -896,9 +900,23 @@ function renderRecipeLibrary(library) {
           <span class="rlib-std-val">${fmtNum(std.portions_per_batch)}</span>
           <span class="rlib-std-unit">portions</span>
         </div>
+            </div>`
+        : "";
+      const cost = costMap[item.item_id];
+      const costHtml = cost
+        ? `
+      <div class="rlib-std">
+        <div class="rlib-std-item">
+          <span class="rlib-std-label">Cost / Portion</span>
+          <span class="rlib-std-val">${cost.cost_per_portion != null ? "Rp " + Math.round(cost.cost_per_portion).toLocaleString("id-ID") : "—"}</span>
+        </div>
+        <div class="rlib-std-item">
+          <span class="rlib-std-label">Batch Cost</span>
+          <span class="rlib-std-val">${cost.total_batch_cost != null ? "Rp " + Math.round(cost.total_batch_cost).toLocaleString("id-ID") : "—"}</span>
+        </div>
+        ${cost.has_uncosted_ingredients ? '<div style="grid-column:1/-1;font-size:10px;color:var(--red);margin-top:4px">⚠ Some ingredients uncosted</div>' : ""}
       </div>`
         : "";
-
       const linesHtml = item.lines.length
         ? `
       <table class="rlib-lines">
@@ -929,6 +947,7 @@ function renderRecipeLibrary(library) {
         <div class="rlib-body">
           ${linesHtml}
           ${stdHtml}
+          ${costHtml}
         </div>
       </div>`;
     })
