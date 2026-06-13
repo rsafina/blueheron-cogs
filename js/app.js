@@ -9,8 +9,114 @@ document.addEventListener("DOMContentLoaded", () => {
   setDate();
   checkConfig();
   initNav();
+  initRoles();
   loadPage("dashboard");
 });
+
+// ── ROLES (frontend-only page hiding) ───────────────────────
+//
+// Pure client-side access control. NOT real security — anyone
+// technical can still reach hidden pages. RLS is intentionally
+// disabled for now (see schema_and_seed.sql). See issue #1.
+
+const ROLE_PAGES = {
+  superadmin: [
+    "dashboard",
+    "production",
+    "stock",
+    "purchases",
+    "recipes",
+    "items",
+    "suppliers",
+    "service",
+    "adjustments",
+    "ledger",
+    "costing",
+    "calculator",
+  ],
+  purchase: ["dashboard", "purchases", "suppliers", "items", "costing"],
+  kitchen: ["dashboard", "production", "stock", "recipes", "adjustments"],
+  service: ["dashboard", "service"],
+};
+
+// Maps a nav item's visible text label to its page key. Used because
+// the sidebar markup does not carry data-page attributes.
+const NAV_LABEL_TO_PAGE = {
+  overview: "dashboard",
+  production: "production",
+  stock: "stock",
+  purchases: "purchases",
+  recipes: "recipes",
+  items: "items",
+  suppliers: "suppliers",
+  service: "service",
+  adjustments: "adjustments",
+  ledger: "ledger",
+  costing: "costing",
+  calculator: "calculator",
+};
+
+let _currentRole = "superadmin";
+
+// Ensure every nav item has a data-page attribute derived from its label.
+function tagNavPages() {
+  document.querySelectorAll(".nav-item").forEach((link) => {
+    if (link.dataset.page) return;
+    const label = link.textContent.trim().toLowerCase();
+    const page = NAV_LABEL_TO_PAGE[label];
+    if (page) link.dataset.page = page;
+  });
+}
+
+function initRoles() {
+  tagNavPages();
+
+  const switcher = document.getElementById("role-switcher");
+  const saved = localStorage.getItem("bh_role");
+  _currentRole = ROLE_PAGES[saved] ? saved : "superadmin";
+
+  if (switcher) {
+    switcher.value = _currentRole;
+    switcher.addEventListener("change", () => applyRole(switcher.value));
+  }
+
+  applyRole(_currentRole);
+}
+
+function applyRole(role) {
+  if (!ROLE_PAGES[role]) role = "superadmin";
+  _currentRole = role;
+  localStorage.setItem("bh_role", role);
+
+  const allowed = ROLE_PAGES[role];
+
+  document.querySelectorAll(".nav-item").forEach((link) => {
+    const page = link.dataset.page;
+    const visible = !page || allowed.includes(page);
+    link.style.display = visible ? "" : "none";
+  });
+
+  // Hide a workflow group header when none of its items are visible.
+  document.querySelectorAll(".nav-group").forEach((group) => {
+    const hasVisible = [...group.querySelectorAll(".nav-item")].some(
+      (link) => link.style.display !== "none",
+    );
+    group.classList.toggle("is-empty", !hasVisible);
+  });
+
+  // If the active page is no longer allowed, fall back to Overview.
+  const active = document.querySelector(".nav-item.active");
+  const activePage = active?.dataset.page;
+  if (activePage && !allowed.includes(activePage)) {
+    goToPage("dashboard");
+  }
+}
+
+// Programmatically navigate to a page (mirrors a nav-item click).
+function goToPage(page) {
+  const target = document.querySelector(`.nav-item[data-page="${page}"]`);
+  if (target) target.click();
+}
 
 function setDate() {
   const d = new Date();
@@ -107,10 +213,12 @@ async function loadPage(page) {
 // ── DASHBOARD ───────────────────────────────────────────────
 
 async function loadDashboard() {
-  const [stock, portions, batches] = await Promise.all([
+  const [stock, portions, batches, recipeCosts, sales] = await Promise.all([
     fetchCurrentStock(),
     fetchPortionAvailability(),
     fetchProductionLogs(),
+    fetchRecipeCosts(),
+    fetchSalesHistory(),
   ]);
 
   renderStatCards(stock, batches);
@@ -118,6 +226,125 @@ async function loadDashboard() {
   renderPrepList(portions);
   renderEfficiencyChart(batches.slice(0, 8));
   renderAlertList(stock);
+
+  const profit = buildProfitability(recipeCosts, sales);
+  renderProfitWatchlist(profit);
+  renderHealthBanner(profit, stock);
+}
+
+// ── COGS / FOOD-COST HEALTH ──────────────────────────────
+// Food cost % = cost per portion / selling price.
+// Thresholds: green <=30%, amber 30–40%, red >40%.
+
+const FC_GOOD_MAX = 30;
+const FC_WATCH_MAX = 40;
+
+function fcHealth(pct) {
+  if (pct == null) return "unknown";
+  if (pct <= FC_GOOD_MAX) return "good";
+  if (pct <= FC_WATCH_MAX) return "watch";
+  return "danger";
+}
+
+// Latest selling price per dish from sales history (most recent entry with a price).
+function latestPriceByDish(sales) {
+  const map = {};
+  // sales already arrive newest-first; keep the first price we see per dish.
+  for (const s of sales || []) {
+    if (s.unit_price != null && map[s.dish_id] == null) {
+      map[s.dish_id] = s.unit_price;
+    }
+  }
+  return map;
+}
+
+// Build a profitability row per Dish recipe.
+function buildProfitability(recipeCosts, sales) {
+  const priceMap = latestPriceByDish(sales);
+  return (recipeCosts || [])
+    .filter((r) => r.category === "Dish")
+    .map((r) => {
+      const cost = r.cost_per_portion != null ? Number(r.cost_per_portion) : null;
+      const price = priceMap[r.output_item_id] ?? null;
+      const pct =
+        cost != null && price ? (cost / price) * 100 : null;
+      return {
+        id: r.output_item_id,
+        name: r.recipe_name,
+        cost,
+        price,
+        pct,
+        health: fcHealth(pct),
+      };
+    })
+    // Riskiest first; unknowns sink to the bottom.
+    .sort((a, b) => (b.pct ?? -1) - (a.pct ?? -1));
+}
+
+function renderProfitWatchlist(rows) {
+  const tbody = document.getElementById("profit-tbody");
+  if (!tbody) return;
+  if (!rows.length) {
+    tbody.innerHTML =
+      '<tr><td colspan="5" class="loading-row">No dishes costed yet</td></tr>';
+    return;
+  }
+
+  const label = { good: "Healthy", watch: "Watch", danger: "Danger", unknown: "No price" };
+
+  tbody.innerHTML = rows
+    .map((r) => {
+      const costTxt = r.cost != null ? "Rp " + Math.round(r.cost).toLocaleString("id-ID") : "—";
+      const priceTxt = r.price != null ? "Rp " + Math.round(r.price).toLocaleString("id-ID") : "—";
+      const pctTxt = r.pct != null ? r.pct.toFixed(0) + "%" : "—";
+      return `
+      <tr>
+        <td><strong>${r.name}</strong></td>
+        <td class="mono">${costTxt}</td>
+        <td class="mono">${priceTxt}</td>
+        <td class="mono">${pctTxt}</td>
+        <td><span class="fc-badge fc-${r.health}">${label[r.health]}</span></td>
+      </tr>`;
+    })
+    .join("");
+}
+
+function renderHealthBanner(rows, stock) {
+  const banner = document.getElementById("health-banner");
+  if (!banner) return;
+
+  const priced = rows.filter((r) => r.pct != null);
+  const avg =
+    priced.length
+      ? priced.reduce((s, r) => s + r.pct, 0) / priced.length
+      : null;
+  const dangerCount = rows.filter((r) => r.health === "danger").length;
+  const stockAlerts = (stock || []).filter((s) => s.stock_status !== "ok").length;
+
+  // Overall verdict: danger if any dish is in the red OR avg food cost is high.
+  let state, headline;
+  if (!priced.length) {
+    state = "";
+    headline = "Add selling prices in Service to see profitability";
+  } else if (dangerCount > 0 || (avg != null && avg > FC_WATCH_MAX)) {
+    state = "is-danger";
+    headline = `Action needed — ${dangerCount} dish${dangerCount === 1 ? "" : "es"} losing margin`;
+  } else if (avg != null && avg > FC_GOOD_MAX) {
+    state = "is-watch";
+    headline = "Watch — margins are getting thin";
+  } else {
+    state = "is-good";
+    headline = "Healthy — food costs are in a good range";
+  }
+
+  banner.classList.remove("is-good", "is-watch", "is-danger");
+  if (state) banner.classList.add(state);
+
+  document.getElementById("health-headline").textContent = headline;
+  document.getElementById("health-avg-fc").textContent =
+    avg != null ? avg.toFixed(0) + "%" : "—";
+  document.getElementById("health-danger-count").textContent = dangerCount;
+  document.getElementById("health-stock-alerts").textContent = stockAlerts;
 }
 
 function renderStatCards(stock, batches) {

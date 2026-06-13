@@ -38,152 +38,105 @@
           </svg>
           Overview
         </a>
-        <a href="#" class="nav-item" data-page="production">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path d="M10 2v4M10 14v4M2 10h4M14 10h4" />
-            <circle cx="10" cy="10" r="3" />
-          </svg>
-          Production
-        </a>
-        <a href="#" class="nav-item" data-page="stock">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path d="M3 6l7-3 7 3v8l-7 3-7-3V6z" />
-            <path d="M10 3v14M3 6l7 3 7-3" />
-          </svg>
-          Stock
-        </a>
-        <a href="#" class="nav-item" data-page="purchases">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path
-              d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 2a1 1 0 001 1h12a1 1 0 000-2H8"
-            />
-          </svg>
-          Purchases
-        </a>
-        <a href="#" class="nav-item" data-page="recipes">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path d="M4 4h12M4 8h8M4 12h10M4 16h6" />
-            <circle cx="16" cy="14" r="3" />
-            <path d="M16 13v2M15 14h2" />
-          </svg>
-          Recipes
-        </a>
-        <div class="nav-divider"></div>
-        <a href="#" class="nav-item" data-page="items">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path
-              d="M5 4h10a1 1 0 011 1v1H4V5a1 1 0 011-1zM4 8h12v8a1 1 0 01-1 1H5a1 1 0 01-1-1V8z"
-            />
-            <path d="M8 12h4" />
-          </svg>
-          Items
-        </a>
-        <a href="#" class="nav-item" data-page="suppliers">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <circle cx="8" cy="8" r="3" />
-            <path d="M2 18c0-3.3 2.7-6 6-6" />
-            <path d="M13 13h5M13 16h5M13 19h3" />
-          </svg>
-          Suppliers
-        </a>
-        <div class="nav-divider"></div>
-        <a href="#" class="nav-item" data-page="service">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path d="M3 10h14M3 6h14M3 14h8" />
-            <circle cx="16" cy="14" r="3" />
-            <path d="M16 12.5v3M14.5 14h3" />
-          </svg>
-          Service
-        </a>
-        <a href="#" class="nav-item" data-page="adjustments">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <path d="M4 10h12M10 4l-3 6h6l-3 6" />
-          </svg>
-          Adjustments
-        </a>
-        <a href="#" class="nav-item" data-page="ledger">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <rect x="3" y="3" width="14" height="14" rx="1" />
-            <path d="M3 7h14M7 7v10" />
-          </svg>
-          Ledger
-        </a>
-        <div class="nav-divider"></div>
-        <a href="#" class="nav-item" data-page="costing">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <circle cx="10" cy="10" r="7" />
-            <path
-              d="M10 6v8M7.5 8.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5S12.4 11 10 11s-2.5 1.1-2.5 2.5S8.6 16 10 16"
-            />
-          </svg>
-          Costing
-        </a>
-        <a href="#" class="nav-item" data-page="calculator">
-          <svg
-            viewBox="0 0 20 20"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="1.5"
-          >
-            <rect x="3" y="2" width="14" height="16" rx="2" />
-            <path d="M7 6h6M7 10h2M11 10h2M7 14h2M11 14h2" />
-          </svg>
-          Calculator
-        </a>
+
+        <div class="nav-group" data-group="setup">
+          <div class="nav-group-label">Setup</div>
+          <a href="#" class="nav-item" data-page="items">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M5 4h10a1 1 0 011 1v1H4V5a1 1 0 011-1zM4 8h12v8a1 1 0 01-1 1H5a1 1 0 01-1-1V8z" />
+              <path d="M8 12h4" />
+            </svg>
+            Items
+          </a>
+          <a href="#" class="nav-item" data-page="suppliers">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="8" cy="8" r="3" />
+              <path d="M2 18c0-3.3 2.7-6 6-6" />
+              <path d="M13 13h5M13 16h5M13 19h3" />
+            </svg>
+            Suppliers
+          </a>
+          <a href="#" class="nav-item" data-page="recipes">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 4h12M4 8h8M4 12h10M4 16h6" />
+              <circle cx="16" cy="14" r="3" />
+              <path d="M16 13v2M15 14h2" />
+            </svg>
+            Recipes
+          </a>
+        </div>
+
+        <div class="nav-group" data-group="ops">
+          <div class="nav-group-label">Daily Ops</div>
+          <a href="#" class="nav-item" data-page="purchases">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2 2a1 1 0 001 1h12a1 1 0 000-2H8" />
+            </svg>
+            Purchases
+          </a>
+          <a href="#" class="nav-item" data-page="production">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M10 2v4M10 14v4M2 10h4M14 10h4" />
+              <circle cx="10" cy="10" r="3" />
+            </svg>
+            Production
+          </a>
+          <a href="#" class="nav-item" data-page="service">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 10h14M3 6h14M3 14h8" />
+              <circle cx="16" cy="14" r="3" />
+              <path d="M16 12.5v3M14.5 14h3" />
+            </svg>
+            Service
+          </a>
+        </div>
+
+        <div class="nav-group" data-group="insights">
+          <div class="nav-group-label">Insights</div>
+          <a href="#" class="nav-item" data-page="stock">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M3 6l7-3 7 3v8l-7 3-7-3V6z" />
+              <path d="M10 3v14M3 6l7 3 7-3" />
+            </svg>
+            Stock
+          </a>
+          <a href="#" class="nav-item" data-page="costing">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="10" cy="10" r="7" />
+              <path d="M10 6v8M7.5 8.5c0-1.4 1.1-2.5 2.5-2.5s2.5 1.1 2.5 2.5S12.4 11 10 11s-2.5 1.1-2.5 2.5S8.6 16 10 16" />
+            </svg>
+            Costing
+          </a>
+          <a href="#" class="nav-item" data-page="adjustments">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M4 10h12M10 4l-3 6h6l-3 6" />
+            </svg>
+            Adjustments
+          </a>
+          <a href="#" class="nav-item" data-page="ledger">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="3" width="14" height="14" rx="1" />
+              <path d="M3 7h14M7 7v10" />
+            </svg>
+            Ledger
+          </a>
+          <a href="#" class="nav-item" data-page="calculator">
+            <svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="3" y="2" width="14" height="16" rx="2" />
+              <path d="M7 6h6M7 10h2M11 10h2M7 14h2M11 14h2" />
+            </svg>
+            Calculator
+          </a>
+        </div>
       </nav>
       <div class="sidebar-role">
         <div class="role-dot"></div>
-        <span id="role-label">Admin</span>
+        <select id="role-switcher" aria-label="Switch role">
+          <option value="superadmin">Super Admin</option>
+          <option value="purchase">Purchase</option>
+          <option value="kitchen">Kitchen</option>
+          <option value="service">Service</option>
+        </select>
       </div>
     </aside>
 
@@ -219,6 +172,27 @@
         <!-- ── PAGE: OVERVIEW ── -->
         <section class="page active" id="page-dashboard">
           <!-- Stat cards row -->
+          <div class="health-banner" id="health-banner">
+            <div class="health-verdict" id="health-verdict">
+              <span class="health-dot" id="health-dot"></span>
+              <span class="health-headline" id="health-headline">Checking restaurant health…</span>
+            </div>
+            <div class="health-metrics">
+              <div class="health-metric">
+                <span class="health-metric-val" id="health-avg-fc">—</span>
+                <span class="health-metric-label">Avg food cost</span>
+              </div>
+              <div class="health-metric">
+                <span class="health-metric-val" id="health-danger-count">—</span>
+                <span class="health-metric-label">Dishes in danger</span>
+              </div>
+              <div class="health-metric">
+                <span class="health-metric-val" id="health-stock-alerts">—</span>
+                <span class="health-metric-label">Stock alerts</span>
+              </div>
+            </div>
+          </div>
+
           <div class="stat-row">
             <div class="stat-card" id="stat-ok">
               <div class="stat-value" id="stat-ok-val">—</div>
@@ -284,6 +258,29 @@
             </div>
             <div class="alert-list" id="alert-list">
               <div class="loading-row">Loading…</div>
+            </div>
+          </div>
+
+          <div class="card full-width" id="profit-watchlist-card">
+            <div class="card-header">
+              <span class="card-title">Profitability Watchlist</span>
+              <span class="card-sub">Food cost % per dish — highest (riskiest) first. Green &le;30%, amber 30&ndash;40%, red &gt;40%.</span>
+            </div>
+            <div class="table-wrap">
+              <table class="data-table" id="profit-table">
+                <thead>
+                  <tr>
+                    <th>Dish</th>
+                    <th>Cost / portion</th>
+                    <th>Selling price</th>
+                    <th>Food cost %</th>
+                    <th>Health</th>
+                  </tr>
+                </thead>
+                <tbody id="profit-tbody">
+                  <tr><td colspan="5" class="loading-row">Loading…</td></tr>
+                </tbody>
+              </table>
             </div>
           </div>
         </section>
